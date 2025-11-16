@@ -33,11 +33,11 @@
             const rect = document.createElement('div'); 
             rect.className = "w-64 h-32 bg-blue-400 mb-4 rounded shadow"; //tailwind classes
             
-            rect.innerHTML = 
+         rect.innerHTML = 
                 "Block#" + count + "<br>" +
-                "Previous Hash: " + prevHash+ "<br>" +
-                "Hash: " + current+"<br>" +
-                "Data: " + dataArray[count - 1];
+                "Previous Hash: " +"HASH-"+ prevHash+ "<br>" +
+                "Hash: " +"HASH-"+current+"<br>" +
+                "Data: " +dataArray[count - 1];
             document.getElementById('container').appendChild(rect);
         }
         /////////randomize numbers para sa hash
@@ -66,3 +66,4 @@
 
     </body>
     </html>
+
