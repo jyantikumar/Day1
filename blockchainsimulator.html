@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Rectangles</title>
+    <script>
+    let count=0;
+    let dataArray=[];
+    let hash=[];
+    let prevHash;
+    let current;
+
+         function addBlock() {
+            //////input data ta's push sa arrray
+             let data= prompt("Enter some text:");
+             dataArray.push(data);
+             console.log(dataArray); 
+
+            ///////// previous hash
+            if(hash.length===0){
+                prevHash="000";
+            }
+            else{
+              prevHash = hash[hash.length - 1];
+            }
+            ///////// random numbers for hash
+             current = getRandomInt(10000, 1000000);
+            hash.push(current);
+
+            //increment count ng block
+             count++;
+            const rect = document.createElement('div'); 
+            rect.className = "w-64 h-32 bg-blue-400 mb-4 rounded shadow"; //tailwind classes
+            
+            rect.innerHTML = 
+                "Block#" + count + "<br>" +
+                "Previous Hash: " + prevHash+ "<br>" +
+                "Hash: " + current+"<br>" +
+                "Data: " + dataArray[count - 1];
+            document.getElementById('container').appendChild(rect);
+        }
+        /////////randomize numbers para sa hash
+            function getRandomInt(min, max) {
+                return Math.floor(Math.random() * (max - min + 1)) + min;
+            }
+          
+            console.log(prevHash);
+        </script>
+        <script src="https://cdn.tailwindcss.com"></script>
+    </head>
+
+
+
+
+    <body class="p-6 bg-gray-100">
+    <div class="columns-3 flex justify-center items-center flex-col">
+            <button 
+            onclick="addBlock()" 
+            class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 mb-6">
+            Add Block
+        </button>
+        <div id="container">
+        </div>
+    </div>
+
+    </body>
+    </html>
