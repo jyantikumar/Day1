@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; }
+    label { display: block; margin-top: 15px; font-weight: bold; }
+    input, button { width: 100%; padding: 8px; margin-top: 5px; }
+    #output { white-space: pre-wrap; background-color: #f4f4f4; padding: 10px; border: 1px solid #ddd; }
+  </style>
+</head>
+<body>
+  <h2>Upload to IPFS</h2>
+
+  <form id="uploadForm">
+    <label>2x2 Picture</label>
+    <input type="file" id="pic" accept="image/*" required />
+
+    <label>First Name</label>
+    <input type="text" id="firstName" required />
+
+    <label>Last Name</label>
+    <input type="text" id="lastName" required />
+
+    <label>Middle Name</label>
+    <input type="text" id="middleName" /> <label>Position</label>
+    <input type="text" id="position" required />
+
+    <label>Resume / CV</label>
+    <input type="file" id="resume" accept="application/pdf,.doc,.docx" required />
+
+    <button type="submit">Upload</button>
+  </form>
+
+  <pre id="output">Results will appear here...</pre>
+
+<script>
+
+const PINATA_JWT = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiIwN2UwNjcxNC0zNGU0LTQzOWUtODNjMC1kMWU0ZTViNjJmNDEiLCJlbWFpbCI6Imp5YW50aWF1c3RyaWFrdW1hckBnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGluX3BvbGljeSI6eyJyZWdpb25zIjpbeyJkZXNpcmVkUmVwbGljYXRpb25Db3VudCI6MSwiaWQiOiJGUkExIn0seyJkZXNpcmVkUmVwbGljYXRpb25Db3VudCI6MSwiaWQiOiJOWUMxIn1dLCJ2ZXJzaW9uIjoxfSwibWZhX2VuYWJsZWQiOmZhbHNlLCJzdGF0dXMiOiJBQ1RJVkUifSwiYXV0aGVudGljYXRpb25UeXBlIjoic2NvcGVkS2V5Iiwic2NvcGVkS2V5S2V5IjoiOTY1M2MwYWNjYTk3MzZiNWI4NDIiLCJzY29wZWRLZXlTZWNyZXQiOiIwZGU0ZGEzZjc0NzQwZTc0MzY4ODkxMjFjNGY1YjhiNWUyYzY1ZWRiNGUyNjE2ODhkNmY1MWZkZDhhNzg1MzgyIiwiZXhwIjoxNzk1OTU0NTE1fQ.y8-ZMsr2UjqrNDM4g_ixwRG-59d_qTgOKLOmjp4LI-M	"; 
+
+// ----------------------
+// Upload File to IPFS
+// ----------------------
+async function uploadFileToIPFS(file) {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const res = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${PINATA_JWT}` },
+    body: formData
+  });
+
+  const data = await res.json();
+  console.log("FILE UPLOAD RESPONSE:", data);
+
+  if (!res.ok) {
+    let errorMessage = `File upload failed with status ${res.status}.`;
+    
+    if (data.error && typeof data.error === 'object' && data.error.details) {
+      errorMessage = `Pinata Error: ${data.error.details}`;
+    } else if (data.message) {
+      errorMessage = `Pinata Message: ${data.message}`;
+    } else {
+      errorMessage += ` Response: ${JSON.stringify(data)}`;
+    }
+
+    throw new Error(errorMessage);
+  }
+
+  return data;
+}
+
+// ----------------------
+// Upload JSON to IPFS
+// ----------------------
+async function uploadJsonToIPFS(json) {
+  const res = await fetch("https://api.pinata.cloud/pinning/pinJSONToIPFS", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${PINATA_JWT}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(json)
+  });
+
+  const data = await res.json();
+  console.log("JSON UPLOAD RESPONSE:", data);
+
+  if (!res.ok) {
+    let errorMessage = `JSON upload failed with status ${res.status}.`;
+
+    if (data.error && typeof data.error === 'object' && data.error.details) {
+      errorMessage = `Pinata Error: ${data.error.details}`;
+    } else if (data.message) {
+      errorMessage = `Pinata Message: ${data.message}`;
+    } else {
+      errorMessage += ` Response: ${JSON.stringify(data)}`;
+    }
+    
+    throw new Error(errorMessage);
+  }
+
+  return data;
+}
+
+// ----------------------
+// Form Submission 
+// ----------------------
+const form = document.getElementById("uploadForm");
+const output = document.getElementById("output");
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  output.textContent = "Uploading... please wait";
+
+  const pic = document.getElementById("pic").files[0];
+  const resume = document.getElementById("resume").files[0];
+  const firstName = document.getElementById("firstName").value;
+  const lastName = document.getElementById("lastName").value;
+  const middleName = document.getElementById("middleName").value;
+  const position = document.getElementById("position").value;
+
+
+  
+  
+  // Upload picture to Pinata
+  const picResult = await uploadFileToIPFS(pic);
+  const picCID = picResult.IpfsHash; 
+  
+  // Upload resume to Pinata
+  const resumeResult = await uploadFileToIPFS(resume);
+  const resumeCID = resumeResult.IpfsHash; 
+
+  // Upload metadata JSON
+  const metadata = {
+    firstName,
+    lastName,
+    middleName,
+    position,
+    picture_ipfs: `ipfs://${picCID}`,
+    resume_ipfs: `ipfs://${resumeCID}`
+  };
+
+  const jsonResult = await uploadJsonToIPFS(metadata);
+  const jsonCID = jsonResult.IpfsHash; 
+
+  // Output final results
+  output.textContent = JSON.stringify(
+    {
+      message: "Upload Successful!",
+      firstName,
+      lastName,
+      middleName,
+      position,
+      picture_cid: picCID,
+      resume_cid: resumeCID,
+      metadata_json_cid: jsonCID,
+      metadata_link: `https://gateway.pinata.cloud/ipfs/${jsonCID}`
+    },
+    null,
+    2
+  );
+  
+});
+</script>
+</body>
+</html>
