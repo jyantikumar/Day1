@@ -155,10 +155,9 @@ form.addEventListener("submit", async (e) => {
       lastName,
       middleName,
       position,
-      picture_cid: picCID,
-      resume_cid: resumeCID,
-      metadata_json_cid: jsonCID,
-      metadata_link: `https://gateway.pinata.cloud/ipfs/${jsonCID}`
+      picture_link: `https://ipfs.io/ipfs/${picCID}`,
+      resume_link: `https://ipfs.io/ipfs/${resumeCID}`,
+      metadata_link: `https://ipfs.io/ipfs/${jsonCID}`
     },
     null,
     2
